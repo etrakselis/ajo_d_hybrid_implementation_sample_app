@@ -17,3 +17,4 @@ jobs:
           cd $GITHUB_WORKSPACE
           # Now you're in a git repo
           git status
+          pm2 restart node-api
