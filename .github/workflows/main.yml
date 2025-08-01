@@ -17,3 +17,14 @@ jobs:
           cd $GITHUB_WORKSPACE
           # Now you're in a git repo
           git status
+      
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Restart node
+        run: |
+          cd backend
+          pm2 restart node-api || pm2 start app.js --name node-api --watch
+          
