@@ -2,8 +2,103 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const sampleData = {
+    "requestId": "7a99bd3f-cc2a-4fb2-a07b-6fa51072f23d",
+    "handle": [
+        {
+            "payload": [
+                {
+                    "id": "17084726789691156784968503437297948439",
+                    "namespace": {
+                        "code": "ECID"
+                    }
+                }
+            ],
+            "type": "identity:result"
+        },
+        {
+            "payload": [
+                {
+                    "id": "2f449b98-682c-4437-9823-f94f260f1e69",
+                    "scope": "web://localhost/#hero-banner",
+                    "scopeDetails": {
+                        "decisionProvider": "AJO",
+                        "correlationID": "a8040e3d-73b1-4688-a378-b46fa0dfee88-0",
+                        "characteristics": {
+                            "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiI0MTNlNWNmOS0xODRlLTQwNDgtYjgzYi0yYzk2Y2M3NWZkM2QiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6ImE4MDQwZTNkLTczYjEtNDY4OC1hMzc4LWI0NmZhMGRmZWU4OCIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6IjZkYjUyM2QzLWJjNDctNGFiMC04ZTQwLTRmODBiMjEyYzc5MCIsImNhbXBhaWduVmVyc2lvbklEIjoiMzllNDgwNWItOWI0MS00MDBkLWI0YjItYjk0MTdjYWY2OWJlIiwiY2FtcGFpZ25BY3Rpb25JRCI6IjM4OWEyMGYyLWUwODQtNDdmNy1hZWZmLThmMzhkZTUwZDEwOCJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiNDNlMjAxMWEtNzA1MS00ZmJkLWI2NTgtOTljMjRmY2E4M2QyIiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvY29kZSIsIl90eXBlIjoiaHR0cHM6Ly9ucy5hZG9iZS5jb20veGRtL2NoYW5uZWwtdHlwZXMvY29kZSJ9fX0=",
+                            "subPropositions": "W3siaWQiOiI4OTc3ODhlNC1iZDRhLTRjNTMtYjI4Yy1kYTQyODc3OThjYjIiLCJzY29wZSI6IndlYjovL2xvY2FsaG9zdC8jaGVyby1iYW5uZXIiLCJzY29wZURldGFpbHMiOnsiZGVjaXNpb25Qcm92aWRlciI6IkVYRCIsImNvcnJlbGF0aW9uSUQiOiJhODA0MGUzZC03M2IxLTQ2ODgtYTM3OC1iNDZmYTBkZmVlODgtMCIsInN0cmF0ZWdpZXMiOlt7InN0cmF0ZWd5SUQiOiJkMzJiZTlhMi04NjcxLTRhYjQtODc2NS02OTZiNTEzZmY0YTUiLCJzdGVwIjoiZGVjaXNpb25Qb2xpY3kifSx7InN0cmF0ZWd5SUQiOiJ3ZWI6Ly9sb2NhbGhvc3QvI2hlcm8tYmFubmVyIiwic3RlcCI6InBsYWNlbWVudCJ9XSwicmFuayI6MSwiYWN0aXZpdHkiOnsiaWQiOiI2ZGI1MjNkMy1iYzQ3LTRhYjAtOGU0MC00ZjgwYjIxMmM3OTAjMzg5YTIwZjItZTA4NC00N2Y3LWFlZmYtOGYzOGRlNTBkMTA4IiwicHJpb3JpdHkiOjAsIm1hdGNoZWRTdXJmYWNlcyI6WyJ3ZWI6Ly9sb2NhbGhvc3QvI2hlcm8tYmFubmVyIl19fSwiaXRlbXMiOlt7ImlkIjoiZHBzOmY1NGIyODRjYjE0NDRlYmE0NTc3ZTQ3NDBiNDY0M2RmMjBlZTAyMzk4OTJlNzI0OjFiMTNjNTc2YWQxMjg1YWIiLCJldGFnIjoiMyIsIm5hbWUiOiJPRDEgOiBEZWZhdWx0Iiwic2NvcmUiOjEuMCwiaXRlbVNlbGVjdGlvbiI6eyJzZWxlY3Rpb25EZXRhaWwiOnsic3RyYXRlZ3lJRCI6ImRwczpzZWxlY3Rpb24tc3RyYXRlZ3k6MWIxMzI0ZWNiY2I3OTczNCIsInN0cmF0ZWd5TmFtZSI6IkNvbnN1bWVyIE9mZmVycyIsInNlbGVjdGlvblR5cGUiOiJzZWxlY3Rpb25TdHJhdGVneSIsInZlcnNpb24iOiJsYXRlc3QifSwicmFua2luZ0RldGFpbCI6eyJzdHJhdGVneUlEIjoiZHBzOnJhbmtpbmctZnVuY3Rpb246MWIxNDkzZTNiOWNmNTI1YSIsInN0ZXAiOiJmb3JtdWxhIn19LCJ0b2tlbiI6IlIrNFplQU1GU1VSdWFSTVFIRXd6a2cifV19XQ=="
+                        },
+                        "rank": 1,
+                        "activity": {
+                            "id": "6db523d3-bc47-4ab0-8e40-4f80b212c790#389a20f2-e084-47f7-aeff-8f38de50d108",
+                            "priority": 0,
+                            "matchedSurfaces": [
+                                "web://localhost/#hero-banner"
+                            ]
+                        }
+                    },
+                    "items": [
+                        {
+                            "id": "c6c55480-c1cd-4870-9f20-3f16d10aa862",
+                            "schema": "https://ns.adobe.com/personalization/json-content-item",
+                            "data": {
+                                "content": [
+                                    {
+                                        "offer-name": "OD1 : Default",
+                                         "tracking-token": "R+4ZeAMFSURuaRMQHEwzkg",
+                                         "image_url": "https://author-p132462-e1287209.adobeaemcloud.com/linkshare.html?sh=f743201c_252e_4ff0_a668_554f94d74010.BCqpO4bI2SlhXErqsSz0Y92FoYc--lHEOmy14ArgY2w"
+
+                                    }
+                                  
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "type": "personalization:decisions",
+            "eventIndex": 0
+        },
+        {
+            "payload": [
+                {
+                    "scope": "Target",
+                    "hint": "35",
+                    "ttlSeconds": 1800
+                },
+                {
+                    "scope": "AAM",
+                    "hint": "9",
+                    "ttlSeconds": 1800
+                },
+                {
+                    "scope": "EdgeNetwork",
+                    "hint": "or2",
+                    "ttlSeconds": 1800
+                }
+            ],
+            "type": "locationHint:result"
+        },
+        {
+            "payload": [
+                {
+                    "key": "kndctr_5CE4123F5245B06C0A490D45_AdobeOrg_identity",
+                    "value": "CiYxNzA4NDcyNjc4OTY5MTE1Njc4NDk2ODUwMzQzNzI5Nzk0ODQzOVIQCJfJpt-GMxgBKgNPUjIwAvABl8mm34Yz",
+                    "maxAge": 34128000
+                },
+                {
+                    "key": "kndctr_5CE4123F5245B06C0A490D45_AdobeOrg_cluster",
+                    "value": "or2",
+                    "maxAge": 1800
+                }
+            ],
+            "type": "state:store"
+        }
+    ]
+};
+
 app.get('/api', (req, res) => {
-    res.send('Hello from Node.js backend test3!');
+    res.json(sampleData);
 });
 
 app.listen(port, () => {
