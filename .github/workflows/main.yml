@@ -14,10 +14,9 @@ jobs:
 
       - name: Build or deploy
         run: |
-          cd $GITHUB_WORKSPACE
-          # Now you're in a git repo
+          cd $GITHUB_WORKSPACE         
           git status
-      
+
       - name: Install backend dependencies
         run: |
           cd backend
@@ -27,4 +26,3 @@ jobs:
         run: |
           cd backend
           pm2 restart node-api || pm2 start app.js --name node-api --watch
-          
