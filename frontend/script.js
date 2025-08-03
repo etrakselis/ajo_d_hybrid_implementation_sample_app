@@ -16,7 +16,7 @@ function fetchData() {
                     return response.json();
                 })
                 .then(json => {
-                    const decisions = json.handle?.find(h => h.type === "personalization:decisions");
+                    const decisions = json.edgeResponse.handle?.find(h => h.type === "personalization:decisions");
                     if (!decisions) {
                         document.getElementById('output').textContent = "No offers found.";
                         return;

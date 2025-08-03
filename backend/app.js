@@ -140,7 +140,7 @@ app.post('/api', async (req, res) => {
         // Call NBA Ranking API and store response
         const nbaRankingData = await fetchNbaRanking(encryptedCustomerId);
 
-        // Transform NBA Ranking API response to sample.json structure
+        // Extract the products section from the NBA rankings payload
         const nbaProductsJson = extractNbaOffers(nbaRankingData);
 
         // Helper to fetch new token
@@ -197,7 +197,7 @@ app.post('/api', async (req, res) => {
 
         const data = await response.json();
         // Return Adobe Edge response 
-        res.json({ data });
+        res.json({ edgeResponse : data });
     } catch (err) {
         console.error('Error in /api:', err);
         res.status(500).json({ error: 'Internal server error' });

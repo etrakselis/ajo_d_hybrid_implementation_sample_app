@@ -51,7 +51,7 @@ app.post('/api/nba_rankings', (req, res) => {
   // Ingest encrypted_customer_id from the request body
   const encryptedCustomerId = req.body.encrypted_customer_id;
 
-  // Transformer4Rec function
+  // Transformer4Rec AI ranking model provides product rankings and state
   function Transformer4Rec(encryptedCustomerId) {
     
     return nba_response_payload;
