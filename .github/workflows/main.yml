@@ -17,12 +17,22 @@ jobs:
           cd $GITHUB_WORKSPACE         
           git status
 
-      - name: Install backend dependencies
+      - name: Install backend dependencies for app.js
         run: |
           cd backend
           npm install
 
-      - name: Restart node
+      - name: Install backend dependencies for nbaRanking.js
+        run: |
+          cd NBA_RANKING_API
+          npm install     
+
+      - name: Restart app.js
         run: |
           cd backend
           pm2 restart node-api || pm2 start app.js --name node-api --watch
+
+      - name: Restart nbaRanking.js
+        run: |
+          cd NBA_RANKING_API
+          pm2 restart nba-ranking-api || pm2 start nbaRanking.js --name nba-ranking-api --watch     
