@@ -1,104 +1,178 @@
 const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch'); 
 const app = express();
-const port = 3000;
 
-const sampleData = {
-    "requestId": "7a99bd3f-cc2a-4fb2-a07b-6fa51072f23d",
-    "handle": [
-        {
-            "payload": [
-                {
-                    "id": "17084726789691156784968503437297948439",
-                    "namespace": {
-                        "code": "ECID"
+
+// OAuth-related environment variables
+const ims = process.env.IMS;
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const scope = process.env.SCOPE;
+
+// Edge API environment variables
+const X_GW_IMS_ORG_ID = process.env.X_GW_IMS_ORG_ID;
+const X_API_KEY = process.env.X_API_KEY;
+
+//Server port
+const port = process.env.PORT;
+
+// Token URL
+const tokenUrl = `https://${ims}/ims/token/v3`;
+
+// In-memory token store
+let accessToken = null;
+let tokenExpiry = null;
+
+// Only allow requests from website
+const allowedOrigin = 'https://edwintrakselis.com';
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) {
+      // Block requests with no Origin (e.g., curl, Postman)
+      return callback(new Error('Missing Origin header'), false);
+    }
+    if (origin === allowedOrigin) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+}));
+
+
+// Sample request payload for decisioning.propositionFetch
+// This is a mock payload that would typically be sent to the Adobe Experience Platform Edge Network
+let requestPayload = {
+    "event": {
+        "xdm": {
+            "identityMap": {
+                "FPID": [
+                    {
+                        "id": "xyz",
+                        "authenticatedState": "ambiguous",
+                        "primary": true
                     }
+                ]
+            },
+            "eventType": "decisioning.propositionFetch",
+            "web": {
+                "webPageDetails": {
+                    "URL": "https://localhost/",
+                    "name": "hero-banner"
                 }
-            ],
-            "type": "identity:result"
-        },
-        {
-            "payload": [
-                {
-                    "id": "2f449b98-682c-4437-9823-f94f260f1e69",
-                    "scope": "web://localhost/#hero-banner",
-                    "scopeDetails": {
-                        "decisionProvider": "AJO",
-                        "correlationID": "a8040e3d-73b1-4688-a378-b46fa0dfee88-0",
-                        "characteristics": {
-                            "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiI0MTNlNWNmOS0xODRlLTQwNDgtYjgzYi0yYzk2Y2M3NWZkM2QiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6ImE4MDQwZTNkLTczYjEtNDY4OC1hMzc4LWI0NmZhMGRmZWU4OCIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6IjZkYjUyM2QzLWJjNDctNGFiMC04ZTQwLTRmODBiMjEyYzc5MCIsImNhbXBhaWduVmVyc2lvbklEIjoiMzllNDgwNWItOWI0MS00MDBkLWI0YjItYjk0MTdjYWY2OWJlIiwiY2FtcGFpZ25BY3Rpb25JRCI6IjM4OWEyMGYyLWUwODQtNDdmNy1hZWZmLThmMzhkZTUwZDEwOCJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiNDNlMjAxMWEtNzA1MS00ZmJkLWI2NTgtOTljMjRmY2E4M2QyIiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvY29kZSIsIl90eXBlIjoiaHR0cHM6Ly9ucy5hZG9iZS5jb20veGRtL2NoYW5uZWwtdHlwZXMvY29kZSJ9fX0=",
-                            "subPropositions": "W3siaWQiOiI4OTc3ODhlNC1iZDRhLTRjNTMtYjI4Yy1kYTQyODc3OThjYjIiLCJzY29wZSI6IndlYjovL2xvY2FsaG9zdC8jaGVyby1iYW5uZXIiLCJzY29wZURldGFpbHMiOnsiZGVjaXNpb25Qcm92aWRlciI6IkVYRCIsImNvcnJlbGF0aW9uSUQiOiJhODA0MGUzZC03M2IxLTQ2ODgtYTM3OC1iNDZmYTBkZmVlODgtMCIsInN0cmF0ZWdpZXMiOlt7InN0cmF0ZWd5SUQiOiJkMzJiZTlhMi04NjcxLTRhYjQtODc2NS02OTZiNTEzZmY0YTUiLCJzdGVwIjoiZGVjaXNpb25Qb2xpY3kifSx7InN0cmF0ZWd5SUQiOiJ3ZWI6Ly9sb2NhbGhvc3QvI2hlcm8tYmFubmVyIiwic3RlcCI6InBsYWNlbWVudCJ9XSwicmFuayI6MSwiYWN0aXZpdHkiOnsiaWQiOiI2ZGI1MjNkMy1iYzQ3LTRhYjAtOGU0MC00ZjgwYjIxMmM3OTAjMzg5YTIwZjItZTA4NC00N2Y3LWFlZmYtOGYzOGRlNTBkMTA4IiwicHJpb3JpdHkiOjAsIm1hdGNoZWRTdXJmYWNlcyI6WyJ3ZWI6Ly9sb2NhbGhvc3QvI2hlcm8tYmFubmVyIl19fSwiaXRlbXMiOlt7ImlkIjoiZHBzOmY1NGIyODRjYjE0NDRlYmE0NTc3ZTQ3NDBiNDY0M2RmMjBlZTAyMzk4OTJlNzI0OjFiMTNjNTc2YWQxMjg1YWIiLCJldGFnIjoiMyIsIm5hbWUiOiJPRDEgOiBEZWZhdWx0Iiwic2NvcmUiOjEuMCwiaXRlbVNlbGVjdGlvbiI6eyJzZWxlY3Rpb25EZXRhaWwiOnsic3RyYXRlZ3lJRCI6ImRwczpzZWxlY3Rpb24tc3RyYXRlZ3k6MWIxMzI0ZWNiY2I3OTczNCIsInN0cmF0ZWd5TmFtZSI6IkNvbnN1bWVyIE9mZmVycyIsInNlbGVjdGlvblR5cGUiOiJzZWxlY3Rpb25TdHJhdGVneSIsInZlcnNpb24iOiJsYXRlc3QifSwicmFua2luZ0RldGFpbCI6eyJzdHJhdGVneUlEIjoiZHBzOnJhbmtpbmctZnVuY3Rpb246MWIxNDkzZTNiOWNmNTI1YSIsInN0ZXAiOiJmb3JtdWxhIn19LCJ0b2tlbiI6IlIrNFplQU1GU1VSdWFSTVFIRXd6a2cifV19XQ=="
-                        },
-                        "rank": 1,
-                        "activity": {
-                            "id": "6db523d3-bc47-4ab0-8e40-4f80b212c790#389a20f2-e084-47f7-aeff-8f38de50d108",
-                            "priority": 0,
-                            "matchedSurfaces": [
-                                "web://localhost/#hero-banner"
-                            ]
-                        }
+            },
+            "timestamp": "2025-07-29T15:30:00.000Z",
+            "_paypal": {
+                "NBAOffer": [
+                    {
+                        "Product": "PAYLATER",
+                        "Rank": 1,
+                        "State": "NBA_PAYLATER_MERCH"
                     },
-                    "items": [
-                        {
-                            "id": "c6c55480-c1cd-4870-9f20-3f16d10aa862",
-                            "schema": "https://ns.adobe.com/personalization/json-content-item",
-                            "data": {
-                                "content": [
-                                    {
-                                        "offer-name": "OD1 : Default",
-                                         "tracking-token": "R+4ZeAMFSURuaRMQHEwzkg",
-                                         "image_url": "https://author-p132462-e1287209.adobeaemcloud.com/linkshare.html?sh=f743201c_252e_4ff0_a668_554f94d74010.BCqpO4bI2SlhXErqsSz0Y92FoYc--lHEOmy14ArgY2w"
-
-                                    }
-                                  
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ],
-            "type": "personalization:decisions",
-            "eventIndex": 0
-        },
-        {
-            "payload": [
-                {
-                    "scope": "Target",
-                    "hint": "35",
-                    "ttlSeconds": 1800
-                },
-                {
-                    "scope": "AAM",
-                    "hint": "9",
-                    "ttlSeconds": 1800
-                },
-                {
-                    "scope": "EdgeNetwork",
-                    "hint": "or2",
-                    "ttlSeconds": 1800
-                }
-            ],
-            "type": "locationHint:result"
-        },
-        {
-            "payload": [
-                {
-                    "key": "kndctr_5CE4123F5245B06C0A490D45_AdobeOrg_identity",
-                    "value": "CiYxNzA4NDcyNjc4OTY5MTE1Njc4NDk2ODUwMzQzNzI5Nzk0ODQzOVIQCJfJpt-GMxgBKgNPUjIwAvABl8mm34Yz",
-                    "maxAge": 34128000
-                },
-                {
-                    "key": "kndctr_5CE4123F5245B06C0A490D45_AdobeOrg_cluster",
-                    "value": "or2",
-                    "maxAge": 1800
-                }
-            ],
-            "type": "state:store"
+                    {
+                        "Product": "PPWC",
+                        "Rank": 2,
+                         "State": "NBA_PPWC_MER_REP_UPFRONT_OFFER"
+                    },
+                    {
+                        "Product": "PPBL",
+                        "Rank": 3,
+                         "State": "NBA_PPBL_MER_REP_RE_FINANCE"
+                    }
+                ]
+            }
         }
-    ]
-};
+    },
+    "query": {
+        "identity": {
+            "fetch": [
+                "ECID"
+            ]
+        },
+        "personalization": {
+            "surfaces": [
+                "web://localhost/#hero-banner"
+            ]
+        }
+    },
+    "meta": {
+        "state": {
+            "domain": "localhost",
+            "cookiesEnabled": true,
+            "entries": [
+                {
+                    "key": "kndctr_C735552962AB1A800A495FFD_AdobeOrg_identity",
+                    "value": "abc123"
+                },
+                {
+                    "key": "kndctr_C735552962AB1A800A495FFD_AdobeOrg_cluster",
+                    "value": "va6"
+                }
+            ]
+        }
+    }
+}
 
-app.get('/api', (req, res) => {
-    res.json(sampleData);
+// Adobe Edge Network API endpoint for interaction
+// This is the endpoint where the request payload would be sent
+const postRequestEndpoint = "https://server.adobedc.net/ee/v2/interact?datastreamId=ea8c60da-4651-411f-a576-832a39776958"
+
+app.get('/api', async (req, res) => {
+    try {
+        // Helper to fetch new token
+        async function fetchNewToken() {
+            const response = await fetch(tokenUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    grant_type: 'client_credentials',
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    scope: scope
+                })
+            });
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error('OAuth request failed: ' + error);
+            }
+            const data = await response.json();
+            accessToken = data.access_token;
+            tokenExpiry = Date.now() + (data.expires_in * 1000);
+        }
+
+        // Check if token exists and is valid, else renew
+        if (!accessToken || !tokenExpiry || Date.now() > tokenExpiry) {
+            await fetchNewToken();
+        }
+
+        // Prepare headers for Adobe Edge Network API
+        const headers = {
+            'x-api-key': X_API_KEY,
+            'x-gw-ims-org-id': X_GW_IMS_ORG_ID,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        };
+
+        // Make POST request to Adobe Edge Network
+        const response = await fetch(postRequestEndpoint, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestPayload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return res.status(response.status).json({ error: 'Adobe Edge API request failed', detail: errorText });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        console.error('Error in /api:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 app.listen(port, () => {
