@@ -2,7 +2,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-//const fetch = require('node-fetch'); 
 const app = express();
 
 // Only allow requests from website
@@ -198,7 +197,7 @@ app.post('/api', async (req, res) => {
 
         const data = await response.json();
         // Return Adobe Edge response 
-        res.json({ adobeEdge: data });
+        res.json({ data });
     } catch (err) {
         console.error('Error in /api:', err);
         res.status(500).json({ error: 'Internal server error' });
