@@ -179,7 +179,10 @@ app.post('/api', async (req, res) => {
         };
 
         // update the requestPayload before sending to Adobe Edge Network        
-        requestPayload.event.xdm = _paypal.nbaProductsJson;
+            requestPayload.event.xdm = {
+            ...requestPayload.event.xdm,
+            ...nbaProductsJson
+        };
 
         // Make POST request to Adobe Edge Network
         const response = await fetch(postRequestEndpoint, {
@@ -194,8 +197,8 @@ app.post('/api', async (req, res) => {
         }
 
         const data = await response.json();
-        // Return both Adobe Edge response and NBA offers
-        res.json({ adobeEdge: data, nbaOffers: nbaOffersJson });
+        // Return Adobe Edge response 
+        res.json({ adobeEdge: data });
     } catch (err) {
         console.error('Error in /api:', err);
         res.status(500).json({ error: 'Internal server error' });
