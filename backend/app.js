@@ -1,6 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch'); 
+//const fetch = require('node-fetch'); 
 const app = express();
 
 
@@ -24,7 +25,22 @@ const tokenUrl = `https://${ims}/ims/token/v3`;
 let accessToken = null;
 let tokenExpiry = null;
 
+// Only allow requests from website
+const allowedOrigin = 'https://edwintrakselis.com';
 
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) {
+      // Block requests with no Origin (e.g., curl, Postman)
+      return callback(new Error('Missing Origin header'), false);
+    }
+    if (origin === allowedOrigin) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+}));
 
 
 // Sample request payload for decisioning.propositionFetch
