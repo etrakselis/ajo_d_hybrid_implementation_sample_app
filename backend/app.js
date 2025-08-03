@@ -120,7 +120,7 @@ let requestPayload = {
 // This is the endpoint where the request payload would be sent
 const postRequestEndpoint = "https://server.adobedc.net/ee/v2/interact?datastreamId=ea8c60da-4651-411f-a576-832a39776958"
 
-app.get('/api', async (req, res) => {
+app.post('/api', async (req, res) => {
     try {
         // Helper to fetch new token
         async function fetchNewToken() {

@@ -2,7 +2,13 @@ function fetchData() {
             const custIdEcrpt = document.getElementById('custIdEcrpt').value;
             const scopeToMatch = "web://localhost/#hero-banner"; // or set dynamically if needed
 
-            fetch(`/api?custIdEcrpt=${encodeURIComponent(custIdEcrpt)}`)
+            fetch('/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ encrypted_customer_id: custIdEcrpt })
+            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('API call failed: ' + response.status);
