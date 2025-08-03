@@ -1,4 +1,5 @@
 .env
 node_modules/
 main.yml
-sample.json
+nbaRankingExample.json
+nbaRankingExampleFinal.json

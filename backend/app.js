@@ -1,8 +1,28 @@
+//Dependencies
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 //const fetch = require('node-fetch'); 
 const app = express();
+
+// Only allow requests from website
+const allowedOrigin = 'https://edwintrakselis.com';
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) {
+      // Block requests with no Origin (e.g., curl, Postman)
+      return callback(new Error('Missing Origin header'), false);
+    }
+    if (origin === allowedOrigin) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+}));
+
+app.use(express.json()); 
 
 
 // OAuth-related environment variables
@@ -25,22 +45,6 @@ const tokenUrl = `https://${ims}/ims/token/v3`;
 let accessToken = null;
 let tokenExpiry = null;
 
-// Only allow requests from website
-const allowedOrigin = 'https://edwintrakselis.com';
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) {
-      // Block requests with no Origin (e.g., curl, Postman)
-      return callback(new Error('Missing Origin header'), false);
-    }
-    if (origin === allowedOrigin) {
-      return callback(null, true);
-    }
-    callback(new Error('Not allowed by CORS'), false);
-  },
-  credentials: true,
-}));
 
 
 // Sample request payload for decisioning.propositionFetch
@@ -65,25 +69,7 @@ let requestPayload = {
                 }
             },
             "timestamp": "2025-07-29T15:30:00.000Z",
-            "_paypal": {
-                "NBAOffer": [
-                    {
-                        "Product": "PAYLATER",
-                        "Rank": 1,
-                        "State": "NBA_PAYLATER_MERCH"
-                    },
-                    {
-                        "Product": "PPWC",
-                        "Rank": 2,
-                         "State": "NBA_PPWC_MER_REP_UPFRONT_OFFER"
-                    },
-                    {
-                        "Product": "PPBL",
-                        "Rank": 3,
-                         "State": "NBA_PPBL_MER_REP_RE_FINANCE"
-                    }
-                ]
-            }
+           
         }
     },
     "query": {
@@ -120,8 +106,44 @@ let requestPayload = {
 // This is the endpoint where the request payload would be sent
 const postRequestEndpoint = "https://server.adobedc.net/ee/v2/interact?datastreamId=ea8c60da-4651-411f-a576-832a39776958"
 
+// Helper function to transform NBA Ranking API response to sample.json structure
+function extractNbaOffers(nbaRankingData) {
+    const offers = [];
+    const rankedRecommendations = nbaRankingData?.data?.merchant?.insights?.aiRecommendations?.rankedRecommendations || [];
+    rankedRecommendations.forEach(rec => {
+        offers.push({
+            Product: rec.product,
+            Rank: rec.rank,
+            State: rec.state
+        });
+    });
+    return { _paypal: { NBAOffer: offers } };
+}
+
 app.post('/api', async (req, res) => {
     try {
+        const encryptedCustomerId = req.body.encrypted_customer_id;
+
+        // Helper function to call NBA Ranking API
+        async function fetchNbaRanking(encryptedCustomerId) {
+            const nbaResponse = await fetch('http://localhost:8000/api/nba_rankings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ encrypted_customer_id: encryptedCustomerId })
+            });
+            if (!nbaResponse.ok) {
+                const errorText = await nbaResponse.text();
+                throw new Error('NBA Ranking API request failed: ' + errorText);
+            }
+            return await nbaResponse.json();
+        }
+
+        // Call NBA Ranking API and store response
+        const nbaRankingData = await fetchNbaRanking(encryptedCustomerId);
+
+        // Transform NBA Ranking API response to sample.json structure
+        const nbaProductsJson = extractNbaOffers(nbaRankingData);
+
         // Helper to fetch new token
         async function fetchNewToken() {
             const response = await fetch(tokenUrl, {
@@ -156,6 +178,9 @@ app.post('/api', async (req, res) => {
             'Content-Type': 'application/json'
         };
 
+        // update the requestPayload before sending to Adobe Edge Network        
+        requestPayload.event.xdm = _paypal.nbaProductsJson;
+
         // Make POST request to Adobe Edge Network
         const response = await fetch(postRequestEndpoint, {
             method: 'POST',
@@ -169,7 +194,8 @@ app.post('/api', async (req, res) => {
         }
 
         const data = await response.json();
-        res.json(data);
+        // Return both Adobe Edge response and NBA offers
+        res.json({ adobeEdge: data, nbaOffers: nbaOffersJson });
     } catch (err) {
         console.error('Error in /api:', err);
         res.status(500).json({ error: 'Internal server error' });
