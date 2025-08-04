@@ -44,9 +44,56 @@ function fetchData() {
                     });
                     html += '</div>';
                     document.getElementById('output').innerHTML = html;
+                    afterFetchData(matchedPayload,custIdEcrpt); // Pass matchedPayload to afterFetchData
                 })
                 .catch(error => {
                     document.getElementById('output').textContent = 'Error: ' + error.message;
                 });
         }
+
+// This function will execute after output is rendered and process each item in matchedPayload
+function afterFetchData(matchedPayload,custIdEcrpt) {
+    matchedPayload.items.forEach(item => { 
+     
+        if (item.data && Array.isArray(item.data.content)) {
+            item.data.content.forEach(contentObj => {
+
+                // --- Send propositionDisplay event for each offer ---
+          alloy("sendEvent", {
+            xdm: {
+              eventType: "decisioning.propositionDisplay",
+              identityMap: {
+                    custIdEcrpt: [{
+                      id: custIdEcrpt,
+                      authenticatedState: "ambiguous",
+                      primary: true
+                    }]
+                  },
+              _experience: {
+                decisioning: {
+                     propositionAction: {
+                      
+                      tokens:  contentObj["tracking-token"] 
+                    },
+             
+                  propositionEventType: { display: 1 }
+                }
+              },
+              web: {
+                webPageDetails: {
+                  name: "index page"
+                },
+                webInteraction: {
+                  name: `offer-${contentObj["itemID"]+ 1}-display`,
+                  type: "view"
+                }
+              }
+            }
+          })
+
+
+            });
+        }
+    });
+}
 

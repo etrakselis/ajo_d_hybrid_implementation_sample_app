@@ -45,6 +45,32 @@
             background-color: #f9f9f9;
         }
     </style>
+    <script src="https://assets.adobedtm.com/488a91da082e/1e901328037f/launch-ea8588bc6f36-development.min.js" async></script>
+    <script>
+        // https://experienceleague.adobe.com/docs/experience-platform/edge/personalization/manage-flicker.html?lang=en
+        !function (e, a, n, t) {
+            if (a) return;
+            var i = e.head; if (i) {
+                var o = e.createElement("style");
+                o.id = "alloy-prehiding", o.innerText = n, i.appendChild(o),
+                    setTimeout(function () { o.parentNode && o.parentNode.removeChild(o) }, t)
+            }
+        }
+            (document, document.location.href.indexOf("adobe_authoring_enabled") !== -1, "body { opacity: 0 !important }", 3000);
+
+
+        !function (n, o) {
+            o.forEach(function (o) {
+                n[o] || ((n.__alloyNS = n.__alloyNS ||
+                    []).push(o), n[o] = function () {
+                        var u = arguments; return new Promise(
+                            function (i, l) { n[o].q.push([i, l, u]) })
+                    }, n[o].q = [])
+            })
+        }
+            (window, ["alloy"]);     
+    </script>   
+    <script src="script.js"></script>
 </head>
 
 <body>
@@ -73,7 +99,7 @@
         <p>AJO-D Mockup Offers</p>
     </footer>
 
-    <script src="script.js"></script>
+    
 
 
        
