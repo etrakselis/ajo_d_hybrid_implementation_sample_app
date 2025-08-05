@@ -87,7 +87,7 @@ function afterFetchData(matchedPayload,custIdEcrpt) {
                 decisioning: {
                      propositionAction: {
                       
-                      tokens:  contentObj["tracking-token"] 
+                      tokens:  [contentObj["tracking-token"]]
                     },
              
                   propositionEventType: { display: 1 }
