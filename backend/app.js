@@ -52,10 +52,17 @@ let requestPayload = {
     "event": {
         "xdm": {
             "identityMap": {
+                "custIdEcrpt": [
+                    {
+                        "id": "",
+                        "authenticatedState": "authenticated",
+                        "primary": true
+                    }
+                ],
                 "FPID": [
                     {
-                        "id": "xyz",
-                        "authenticatedState": "ambiguous",
+                        "id": "",
+                        "authenticatedState": "authenticated",
                         "primary": true
                     }
                 ]
@@ -82,23 +89,8 @@ let requestPayload = {
                 "web://localhost/#hero-banner"
             ]
         }
-    },
-    "meta": {
-        "state": {
-            "domain": "localhost",
-            "cookiesEnabled": true,
-            "entries": [
-                {
-                    "key": "kndctr_C735552962AB1A800A495FFD_AdobeOrg_identity",
-                    "value": "abc123"
-                },
-                {
-                    "key": "kndctr_C735552962AB1A800A495FFD_AdobeOrg_cluster",
-                    "value": "va6"
-                }
-            ]
-        }
     }
+   
 }
 
 // Adobe Edge Network API endpoint for interaction
@@ -106,7 +98,7 @@ let requestPayload = {
 const postRequestEndpoint = "https://server.adobedc.net/ee/v2/interact?datastreamId=ea8c60da-4651-411f-a576-832a39776958"
 
 // Helper function to transform NBA Ranking API response to sample.json structure
-function extractNbaOffers(nbaRankingData) {
+function extractNbaOffers(nbaRankingData, encryptedCustomerId) {
     const offers = [];
     const rankedRecommendations = nbaRankingData?.data?.merchant?.insights?.aiRecommendations?.rankedRecommendations || [];
     rankedRecommendations.forEach(rec => {
@@ -116,7 +108,14 @@ function extractNbaOffers(nbaRankingData) {
             State: rec.state
         });
     });
-    return { _paypal: { NBAOffer: offers } };
+    return {
+        _paypal: {
+            Identities: {
+                custIdEcrpt: encryptedCustomerId
+            },
+            NBAOffer: offers
+        }
+    };
 }
 
 app.post('/api', async (req, res) => {
@@ -141,7 +140,7 @@ app.post('/api', async (req, res) => {
         const nbaRankingData = await fetchNbaRanking(encryptedCustomerId);
 
         // Extract the products section from the NBA rankings payload
-        const nbaProductsJson = extractNbaOffers(nbaRankingData);
+        const nbaProductsJson = extractNbaOffers(nbaRankingData,encryptedCustomerId);
 
         // Helper to fetch new token
         async function fetchNewToken() {
@@ -177,10 +176,13 @@ app.post('/api', async (req, res) => {
             'Content-Type': 'application/json'
         };
 
-        // update the requestPayload before sending to Adobe Edge Network        
-            requestPayload.event.xdm = {
+        // update the requestPayload before sending to Adobe Edge Network  
+         requestPayload.event.xdm.identityMap.custIdEcrpt[0].id = encryptedCustomerId;
+         requestPayload.event.xdm.identityMap.FPID[0].id = encryptedCustomerId;          
+            requestPayload.event.xdm = {             
             ...requestPayload.event.xdm,
             ...nbaProductsJson
+
         };
 
         // Make POST request to Adobe Edge Network
