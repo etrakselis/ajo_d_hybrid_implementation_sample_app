@@ -96,10 +96,6 @@ function afterFetchData(matchedPayload,custIdEcrpt) {
               web: {
                 webPageDetails: {
                   name: "index page"
-                },
-                webInteraction: {
-                  name: `offer-${contentObj["itemID"]}-display`,
-                  type: "view"
                 }
               }
             }
