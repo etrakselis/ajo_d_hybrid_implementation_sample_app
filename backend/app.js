@@ -109,7 +109,7 @@ function extractNbaOffers(nbaRankingData, encryptedCustomerId) {
     return {
         _paypal: {
             Identities: {
-                custIdEcrpt: encryptedCustomerId
+                custIdEncrypt: encryptedCustomerId
             },
             NBAOffer: offers
         }
