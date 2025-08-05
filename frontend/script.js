@@ -1,5 +1,6 @@
 function fetchData() {
             const custIdEcrpt = document.getElementById('custIdEcrpt').value;
+            const assurance_debug_token = document.getElementById('assuranceDebugToken').value;
             const scopeToMatch = "web://localhost/#hero-banner"; // or set dynamically if needed
 
             fetch('/api', {
@@ -7,7 +8,7 @@ function fetchData() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ encrypted_customer_id: custIdEcrpt })
+                body: JSON.stringify({ encrypted_customer_id: custIdEcrpt, debug_token: assurance_debug_token })
             })
                 .then(response => {
                     if (!response.ok) {
@@ -29,6 +30,13 @@ function fetchData() {
                         return;
                     }
 
+                    else if ((matchedPayload || matchedPayload.items) && matchedPayload.items.length === 0) {
+
+                        document.getElementById('output').textContent = "No offers found.";
+                        return;
+
+                        } 
+
                     let html = '<div class="item-container">';
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
@@ -40,7 +48,8 @@ function fetchData() {
                             </div>
                         `;
                             });
-                        }
+                        }                        
+
                     });
                     html += '</div>';
                     document.getElementById('output').innerHTML = html;
@@ -84,7 +93,7 @@ function afterFetchData(matchedPayload,custIdEcrpt) {
                   name: "index page"
                 },
                 webInteraction: {
-                  name: `offer-${contentObj["itemID"]+ 1}-display`,
+                  name: `offer-${contentObj["itemID"]}-display`,
                   type: "view"
                 }
               }

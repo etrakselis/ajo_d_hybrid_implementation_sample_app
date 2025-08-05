@@ -121,6 +121,7 @@ function extractNbaOffers(nbaRankingData, encryptedCustomerId) {
 app.post('/api', async (req, res) => {
     try {
         const encryptedCustomerId = req.body.encrypted_customer_id;
+        const assurance_debug_token = req.body.debug_token;
 
         // Helper function to call NBA Ranking API
         async function fetchNbaRanking(encryptedCustomerId) {
@@ -173,7 +174,8 @@ app.post('/api', async (req, res) => {
             'x-api-key': X_API_KEY,
             'x-gw-ims-org-id': X_GW_IMS_ORG_ID,
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-adobe-aep-validation-token': assurance_debug_token
         };
 
         // update the requestPayload before sending to Adobe Edge Network  
