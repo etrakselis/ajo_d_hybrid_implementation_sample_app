@@ -63,7 +63,7 @@ let requestPayload = {
                     {
                         "id": "",
                         "authenticatedState": "ambiguous",
-                        "primary": true
+                        "primary": false
                     }
                 ]
             },
@@ -74,8 +74,7 @@ let requestPayload = {
                     "name": "hero-banner"
                 }
             },
-            "timestamp": "2025-07-29T15:30:00.000Z",
-           
+            "timestamp": new Date().toISOString(), // UTC timezone
         }
     },
     "query": {
@@ -90,7 +89,6 @@ let requestPayload = {
             ]
         }
     }
-   
 }
 
 // Adobe Edge Network API endpoint for interaction

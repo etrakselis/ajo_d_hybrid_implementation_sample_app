@@ -82,10 +82,10 @@
       
         <div style="margin-top: 1rem;">
             <label for="custIdEcrpt">custIdEcrpt:</label>
-            <input type="text" id="custIdEcrpt" name="custIdEcrpt" />
+            <input type="text" id="custIdEcrpt" name="custIdEcrpt" required />
             <label for="assuranceDebugToken" style="margin-left: 1rem;">assurance debug token:</label>
             <input type="text" id="assuranceDebugToken" name="assuranceDebugToken" />
-            <button onclick="fetchData()">Display Offers</button>
+            <button onclick="validateAndFetchData()">Display Offers</button>
         </div>
     </header>
 
@@ -103,11 +103,16 @@
         <p>AJO-D Mockup Offers</p>
     </footer>
 
-    
-
-
-       
-   
+    <script>
+        function validateAndFetchData() {
+            const custIdEcrpt = document.getElementById('custIdEcrpt').value.trim();
+            if (!custIdEcrpt) {
+                document.getElementById('output').textContent = "Error: custIdEcrpt is required.";
+                return;
+            }
+            fetchData();
+        }
+    </script>
 </body>
 
 </html>
