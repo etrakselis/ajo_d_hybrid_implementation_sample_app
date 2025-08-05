@@ -55,14 +55,14 @@ let requestPayload = {
                 "custIdEcrpt": [
                     {
                         "id": "",
-                        "authenticatedState": "ambigious",
+                        "authenticatedState": "ambiguous",
                         "primary": true
                     }
                 ],
                 "FPID": [
                     {
                         "id": "",
-                        "authenticatedState": "ambigious",
+                        "authenticatedState": "ambiguous",
                         "primary": true
                     }
                 ]
