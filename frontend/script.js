@@ -1,6 +1,6 @@
 function fetchData() {
-            const custIdEcrpt = document.getElementById('custIdEcrpt').value;
-            const assurance_debug_token = document.getElementById('assuranceDebugToken').value;
+            const custIdEcrpt = document.getElementById('custIdEcrpt').value.trim();
+            const assurance_debug_token = document.getElementById('assuranceDebugToken').value.trim();
             const scopeToMatch = "web://localhost/#hero-banner"; // or set dynamically if needed
 
             fetch('/api', {
@@ -30,9 +30,9 @@ function fetchData() {
                         return;
                     }
 
-                    else if ((matchedPayload || matchedPayload.items) && matchedPayload.items.length === 0) {
+                    else if ((matchedPayload || matchedPayload.items) && matchedPayload.items[0].data.contentlength === 0) {
 
-                        document.getElementById('output').textContent = "No offers found.";
+                        document.getElementById('output').textContent = "No eligible offers for this profile.";
                         return;
 
                         } 
