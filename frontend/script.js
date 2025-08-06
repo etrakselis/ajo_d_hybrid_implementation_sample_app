@@ -30,7 +30,7 @@ function fetchData() {
                         return;
                     }
 
-                    else if ((matchedPayload || matchedPayload.items) && matchedPayload.items[0].data.contentlength === 0) {
+                    else if ((matchedPayload || matchedPayload.items) && matchedPayload.items[0].data.content.length === 0) {
 
                         document.getElementById('output').textContent = "No eligible offers for this profile.";
                         return;
