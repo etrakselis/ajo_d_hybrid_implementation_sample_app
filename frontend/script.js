@@ -37,8 +37,13 @@ function fetchData() {
 
                         } 
 
-                    let html = '<div class="item-container">';
+                     //Vars for the afterFetchData function    
                     let proposition_id = matchedPayload.id;
+                    let scopeDetails = matchedPayload.scopeDetails;    
+
+
+                    //START: Construct the html output
+                    let html = '<div class="item-container">';  
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
                             item.data.content.forEach(contentObj => {
@@ -53,8 +58,14 @@ function fetchData() {
 
                     });
                     html += '</div>';
+                    //END: Construct the html output
+
+                    //START: Display the offer in the browser
                     document.getElementById('output').innerHTML = html;
-                    afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id); // Pass matchedPayload to afterFetchData
+                    //END: Display the offer in the browser
+
+                    //Trigger the sending of the display & interactions events back to the AEP
+                    afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails); // Pass matchedPayload to afterFetchData
                 })
                 .catch(error => {
                     document.getElementById('output').textContent = 'Error: ' + error.message;
@@ -62,7 +73,7 @@ function fetchData() {
         }
 
 // This function will execute after output is rendered and process each item in matchedPayload
-function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id) {
+function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails) {
     matchedPayload.items.forEach(item => { 
      
         if (item.data && Array.isArray(item.data.content)) {
@@ -93,7 +104,8 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id) 
                     propositions: [
                       {
                       scope: scopeToMatch,
-                      id: proposition_id
+                      id: proposition_id,
+                      scopeDetails: scopeDetails
                      }
                   ],
              
