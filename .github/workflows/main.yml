@@ -12,6 +12,9 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
+      - name: Restore .env for backend
+        run: /home/etrakselis/restore_backend_env.sh  
+
       - name: Build or deploy
         run: |
           cd $GITHUB_WORKSPACE         
