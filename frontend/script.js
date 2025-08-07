@@ -38,6 +38,7 @@ function fetchData() {
                         } 
 
                     let html = '<div class="item-container">';
+                    let proposition_id = matchedPayload.id;
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
                             item.data.content.forEach(contentObj => {
@@ -53,7 +54,7 @@ function fetchData() {
                     });
                     html += '</div>';
                     document.getElementById('output').innerHTML = html;
-                    afterFetchData(matchedPayload,custIdEcrpt); // Pass matchedPayload to afterFetchData
+                    afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id); // Pass matchedPayload to afterFetchData
                 })
                 .catch(error => {
                     document.getElementById('output').textContent = 'Error: ' + error.message;
@@ -61,7 +62,7 @@ function fetchData() {
         }
 
 // This function will execute after output is rendered and process each item in matchedPayload
-function afterFetchData(matchedPayload,custIdEcrpt) {
+function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id) {
     matchedPayload.items.forEach(item => { 
      
         if (item.data && Array.isArray(item.data.content)) {
@@ -88,6 +89,10 @@ function afterFetchData(matchedPayload,custIdEcrpt) {
                      propositionAction: {
                       
                       tokens:  [contentObj["tracking-token"]]
+                    },
+                    propositions: {
+                      scope: scopeToMatch,
+                      id: proposition_id
                     },
              
                   propositionEventType: { display: 1 }
