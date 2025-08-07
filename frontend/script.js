@@ -90,10 +90,12 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id) 
                       
                       tokens:  [contentObj["tracking-token"]]
                     },
-                    propositions: {
+                    propositions: [
+                      {
                       scope: scopeToMatch,
                       id: proposition_id
-                    },
+                     }
+                  ],
              
                   propositionEventType: { display: 1 }
                 }
