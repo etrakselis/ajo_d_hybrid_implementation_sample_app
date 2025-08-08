@@ -118,7 +118,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
                 }
               }
             }
-          })
+          }).catch(err => console.error("Display event error:", err));
 
 
             });
