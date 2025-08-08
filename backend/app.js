@@ -30,15 +30,16 @@ const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const scope = process.env.SCOPE;
 
+// OAuth 2.0 Session Token URL
+const tokenUrl = `https://${ims}/ims/token/v3`;
+
 // Edge API environment variables
 const X_GW_IMS_ORG_ID = process.env.X_GW_IMS_ORG_ID;
 const X_API_KEY = process.env.X_API_KEY;
+const DATASTREAM_ID = process.env.DATASTREAM_ID;
 
 //Server port
 const port = process.env.PORT;
-
-// Token URL
-const tokenUrl = `https://${ims}/ims/token/v3`;
 
 // In-memory token store
 let accessToken = null;
@@ -93,7 +94,7 @@ let requestPayload = {
 
 // Adobe Edge Network API endpoint for interaction
 // This is the endpoint where the request payload would be sent
-const postRequestEndpoint = "https://server.adobedc.net/ee/v2/interact?datastreamId=ea8c60da-4651-411f-a576-832a39776958"
+const postRequestEndpoint = `https://server.adobedc.net/ee/v2/interact?datastreamId=${DATASTREAM_ID}`;
 
 // Helper function to transform NBA Ranking API response to sample.json structure
 function extractNbaOffers(nbaRankingData, encryptedCustomerId) {

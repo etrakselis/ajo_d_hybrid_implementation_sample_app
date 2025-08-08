@@ -105,7 +105,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
                       {
                       scope: scopeToMatch,
                       id: proposition_id,
-                      scopeDetails: scopeDetails
+                      scopeDetails: scopeDetails,
                      }
                   ],
              
