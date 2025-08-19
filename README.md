@@ -1,6 +1,17 @@
-Once the repository is cloned, the .env file needs to be created with the following variables defined:<br>
-CLIENT_ID=<br>
-CLIENT_SECRET=<br>
-SCOPE=<br>
-IMS=<br>
-PORT=<br/>
+### Once the repository is cloned, the .env file needs to be created with the following variables defined:
+
+CLIENT_ID=
+
+CLIENT_SECRET=
+
+SCOPE=
+
+IMS=
+
+PORT=
+
+X_API_KEY=
+
+X_GW_IMS_ORG_ID=
+
+DATASTREAM_ID=
