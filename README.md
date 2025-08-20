@@ -1,4 +1,4 @@
-### Once the repository is cloned, the .env file needs to be created with the following variables defined:
+### Once the repository is cloned, the .env file needs to be created with the following variables defined within the backend directory:
 
 CLIENT_ID=
 
