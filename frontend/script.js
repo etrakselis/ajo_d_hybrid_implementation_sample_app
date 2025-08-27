@@ -49,7 +49,7 @@ function fetchData() {
                         if (item.data && Array.isArray(item.data.content)) {
                             item.data.content.forEach(contentObj => {
                                 html += `
-                            <a href="https://www.adobe.com" style="text-decoration:none;" id="${id + 1}"><div class="item">
+                            <a href="#" style="text-decoration:none;" id="${id + 1}"><div class="item">
                                 <h3>${contentObj["offer-name"] || "No Name"}</h3>
                                 <img src="${contentObj.image_url}" alt="${contentObj["offer-name"]}" style="max-width:100%;height:auto;" />
                             </div></a>
