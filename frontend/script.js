@@ -49,7 +49,7 @@ function fetchData() {
                         if (item.data && Array.isArray(item.data.content)) {
                             item.data.content.forEach(contentObj => {
                                 html += `
-                            <a href="#" style="text-decoration:none;" id="${id + 1}"><div class="item">
+                            <a href="#" style="text-decoration:none;" id="${id++}"><div class="item">
                                 <h3>${contentObj["offer-name"] || "No Name"}</h3>
                                 <img src="${contentObj.image_url}" alt="${contentObj["offer-name"]}" style="max-width:100%;height:auto;" />
                             </div></a>
@@ -86,7 +86,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
         if (item.data && Array.isArray(item.data.content)) {
             item.data.content.forEach(contentObj => {
 
-       const link = document.getElementById(id + 1);
+       const link = document.getElementById(id++);
 
                 // --- Send propositionDisplay event for each offer ---
           alloy("sendEvent", {
