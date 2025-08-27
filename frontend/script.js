@@ -42,14 +42,13 @@ function fetchData() {
                     let scopeDetails = matchedPayload.scopeDetails;    
 
 
-                    //START: Construct the html output
-                    let id = 1;
+                    //START: Construct the html output                    
                     let html = '<div class="item-container">';  
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
-                            item.data.content.forEach(contentObj => {
+                            item.data.content.forEach((contentObj, index) => {
                                 html += `
-                            <a href="#" style="text-decoration:none;" id="${id++}"><div class="item">
+                            <a href="#" style="text-decoration:none;" id="${index + 1}"><div class="item">
                                 <h3>${contentObj["offer-name"] || "No Name"}</h3>
                                 <img src="${contentObj.image_url}" alt="${contentObj["offer-name"]}" style="max-width:100%;height:auto;" />
                             </div></a>
@@ -76,15 +75,12 @@ function fetchData() {
 
 
  // This function will execute after output is rendered and process each item in matchedPayload
-function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails) {
-
-    let id = 1;
-    
+function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails) {   
 
     matchedPayload.items.forEach(item => { 
      
         if (item.data && Array.isArray(item.data.content)) {
-            item.data.content.forEach(contentObj => {
+            item.data.content.forEach((contentObj,index) => {
 
        const link = document.getElementById(id++);
 
@@ -132,7 +128,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
                  // --- Click handler for propositionInteract ---
             link.addEventListener("click", event => {
             event.preventDefault();
-            alert(`You clicked Offer ${id}`);
+            alert(`You clicked Offer ${index + 1}`);
         
 
              // --- Send propositionInteract event when an offer is clicked ---
