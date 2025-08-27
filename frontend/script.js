@@ -43,7 +43,7 @@ function fetchData() {
 
 
                     //START: Construct the html output
-                    let id = 0;
+                    let id = 1;
                     let html = '<div class="item-container">';  
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
@@ -78,7 +78,7 @@ function fetchData() {
  // This function will execute after output is rendered and process each item in matchedPayload
 function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails) {
 
-    let id = 0;
+    let id = 1;
     
 
     matchedPayload.items.forEach(item => { 
@@ -132,7 +132,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
                  // --- Click handler for propositionInteract ---
             link.addEventListener("click", event => {
             event.preventDefault();
-            alert(`You clicked Offer ${id + 1}`);
+            alert(`You clicked Offer ${id++}`);
         
 
              // --- Send propositionInteract event when an offer is clicked ---
