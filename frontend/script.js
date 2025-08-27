@@ -132,7 +132,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
                  // --- Click handler for propositionInteract ---
             link.addEventListener("click", event => {
             event.preventDefault();
-            alert(`You clicked Offer ${id++}`);
+            alert(`You clicked Offer ${id}`);
         
 
              // --- Send propositionInteract event when an offer is clicked ---
