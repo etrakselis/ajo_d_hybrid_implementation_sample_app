@@ -82,7 +82,7 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
         if (item.data && Array.isArray(item.data.content)) {
             item.data.content.forEach((contentObj,index) => {
 
-       const link = document.getElementById(id++);
+       const link = document.getElementById(index +1);
 
                 // --- Send propositionDisplay event for each offer ---
           alloy("sendEvent", {
