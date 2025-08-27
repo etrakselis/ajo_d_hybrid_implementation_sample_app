@@ -43,15 +43,16 @@ function fetchData() {
 
 
                     //START: Construct the html output
+                    let id = 0;
                     let html = '<div class="item-container">';  
                     matchedPayload.items.forEach(item => {
                         if (item.data && Array.isArray(item.data.content)) {
                             item.data.content.forEach(contentObj => {
                                 html += `
-                            <div class="item">
+                            <a href="https://www.adobe.com" style="text-decoration:none;" id="${id + 1}"><div class="item">
                                 <h3>${contentObj["offer-name"] || "No Name"}</h3>
                                 <img src="${contentObj.image_url}" alt="${contentObj["offer-name"]}" style="max-width:100%;height:auto;" />
-                            </div>
+                            </div></a>
                         `;
                             });
                         }                        
@@ -72,12 +73,20 @@ function fetchData() {
                 });
         }
 
-// This function will execute after output is rendered and process each item in matchedPayload
+
+
+ // This function will execute after output is rendered and process each item in matchedPayload
 function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,scopeDetails) {
+
+    let id = 0;
+    
+
     matchedPayload.items.forEach(item => { 
      
         if (item.data && Array.isArray(item.data.content)) {
             item.data.content.forEach(contentObj => {
+
+       const link = document.getElementById(id + 1);
 
                 // --- Send propositionDisplay event for each offer ---
           alloy("sendEvent", {
@@ -120,7 +129,54 @@ function afterFetchData(matchedPayload,custIdEcrpt,scopeToMatch,proposition_id,s
             }
           }).catch(err => console.error("Display event error:", err));
 
+                 // --- Click handler for propositionInteract ---
+            link.addEventListener("click", event => {
+            event.preventDefault();
+            alert(`You clicked Offer ${id + 1}`);
+        
 
+             // --- Send propositionInteract event when an offer is clicked ---
+          alloy("sendEvent", {
+            xdm: {
+              eventType: "decisioning.propositionInteract",
+              identityMap: {
+                    custIdEcrpt: [{
+                      id: custIdEcrpt,
+                      authenticatedState: "ambiguous",
+                      primary: true
+                    }]
+                  },
+                  _paypal: {
+                     Identities: {
+                          custIdEncrypt: custIdEcrpt
+                                 }
+                           },
+              _experience: {
+                decisioning: {
+                     propositionAction: {
+                      
+                      tokens:  [contentObj["tracking-token"]]
+                    },
+                    propositions: [
+                      {
+                      scope: scopeToMatch,
+                      id: proposition_id,
+                      scopeDetails: scopeDetails,
+                     }
+                  ],
+             
+                  propositionEventType: { interact: 1 }
+                }
+              },
+              web: {
+                webPageDetails: {
+                  name: "index page"
+                }
+              }
+            }
+          }).catch(err => console.error("Interact event error:", err));
+
+        })
             });
         }
     });
