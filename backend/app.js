@@ -108,7 +108,10 @@ function extractNbaOffers(nbaRankingData, encryptedCustomerId) {
         });
     });
     return {
-        _paypal: {
+        _paypal: {            
+            paypalDemographics: {
+                enterpriseCustLang: "en_US"
+            },
             Identities: {
                 custIdEncrypt: encryptedCustomerId
             },
